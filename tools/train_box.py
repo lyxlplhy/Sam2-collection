@@ -149,7 +149,7 @@ for itr in range(100000):
         scaler.update()  # Mix precision
 
         if itr % 100 == 0: torch.save(predictor.model.state_dict(),
-                                      "checkpoint_sam2/model_透明小盖子框.torch");print("save model")
+                                      "checkpoint_sam2/model.torch");print("save model")
 
         # Display results
         if itr == 0: mean_iou = 0
