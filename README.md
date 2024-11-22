@@ -19,10 +19,10 @@
  * [export_sam2onnx.py](./tools/export_sam2onnx.py)
 
 # sam2+手动给提示框分割，可生成mask标签
- * [tools/inference2.py](./tools/inference2.py)
+ * [inference2.py](./tools/inference2.py)
 
 # sam2+yolov8自动分割，可生成mask标签
- * [tools/inference.py](./tools/inference.py)
+ * [inference.py](./tools/inference.py)
 
 # 参考
 * sam2: [https://github.com/facebookresearch/sam2](https://github.com/facebookresearch/sam2)
