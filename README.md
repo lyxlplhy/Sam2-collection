@@ -5,3 +5,8 @@
   * sam2+手动给提示框分割，可生成mask标签
   * sam2+yolov8自动分割，可生成mask标签
 
+#环境
+ * sam2环境: pip install -e .
+ * onnx: pip install onnx
+ * ultralytics: pip install ultralytics
+ 
