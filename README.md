@@ -28,7 +28,7 @@
  * [inference.py](./tools/inference.py)
 
 # sam2视频推理
- * 代码中视频路径为视频抽帧后存放的文件夹，图片命名方式为0.jpg、1.jpg等[inference_video.py](./toolsinfernece_video.py)
+ * 代码中视频路径为视频抽帧后存放的文件夹，图片命名方式为0.jpg、1.jpg等[inference_video.py](./tools/infernece_video.py)
 # 参考
 * sam2: [https://github.com/facebookresearch/sam2](https://github.com/facebookresearch/sam2)
 * 60行代码就可以训练/微调 Segment Anything 2 (SAM 2): [https://avoid.overfit.cn/post/9598b9b4ccc64a8e86275f1e7712e0dd](https://avoid.overfit.cn/post/9598b9b4ccc64a8e86275f1e7712e0dd)
