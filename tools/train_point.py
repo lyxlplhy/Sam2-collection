@@ -127,7 +127,7 @@ for itr in range(100000):
             scaler.step(optimizer)
             scaler.update() # Mix precision
 
-            if itr%100==0: torch.save(predictor.model.state_dict(), "model_透明小盖子点.torch");print("save model")
+            if itr%100==0: torch.save(predictor.model.state_dict(), "model.torch");print("save model")
 
             # Display results
 
