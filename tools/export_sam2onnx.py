@@ -143,6 +143,7 @@ if __name__ == '__main__':
     sam2_checkpoint = f"D:\sam2\segment-anything-2-main\checkpoints\sam2_hiera_tiny.pt"
     model_cfg = 'D:\sam2\segment-anything-2-main\sam2_configs\sam2_hiera_t.yaml'
     sam2_model = build_sam2(model_cfg, sam2_checkpoint, device="cpu")
+    sam2_model.load_state_dict(torch.load("E:\era5/model (1).torch"))
 
 
     img = torch.randn(1, 3, input_size, input_size).cpu()
