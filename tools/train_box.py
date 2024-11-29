@@ -14,14 +14,7 @@ import cv2
 import os
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
-
-# Read data
-
-data_dir = r"E:/LYX_date/mapImage/mapImage_mask/"  # Path to dataset (LabPics 1)
-data = []  # list of files in dataset
-for ff, name in enumerate(os.listdir(data_dir + "Simple4/Train/Images/")):  # go over all folder annotation
-    data.append({"image": data_dir + "Simple4/Train/Images/" + name,
-                 "annotation": data_dir + "Simple4/Train/Instance/" + name[:-4] + ".png"})
+import argparse
 
 
 def read_batch(data):  # read random image and its annotaion from  the dataset (LabPics)
@@ -55,7 +48,7 @@ def read_batch(data):  # read random image and its annotaion from  the dataset (
         mask = (mat_map == ind).astype(np.uint8)  # make binary mask corresponding to index ind
         masks.append(mask)
         coords = np.argwhere(mask > 0)  # get all coordinates in mask
-        yx = np.array(coords[np.random.randint(len(coords))]) # choose random point/coordinate
+        yx = np.array(coords[np.random.randint(len(coords))])  # choose random point/coordinate
         # center_y = int(np.mean(coords[:, 0]))  # y 坐标的平均值
         # center_x = int(np.mean(coords[:, 1]))  # x 坐标的平均值
         # yx = [center_y, center_x]
@@ -79,79 +72,109 @@ def read_batch(data):  # read random image and its annotaion from  the dataset (
         boxs.append(box_yxyx)
 
     return Img, np.array(masks), np.array(boxs), np.array(points), np.ones([len(masks), 1])
+# Read data
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--data_dir",
+        type=str,
+        default="E:\LYX_date\yanwo_cover\simple5\Train/",
+        help="存放模型的路径",
+    )
+    parser.add_argument(
+        "--sam2_checkpoint",
+        type=str,
+        default="D:\sam2\segment-anything-2-main\checkpoints\sam2_hiera_tiny.pt",
+        help="sam2权重路径",
+    )
+    parser.add_argument(
+        "--model_cfg",
+        type=str,
+        default="sam2_hiera_t.yaml",
+        help="sam2配置文件路径",
+    )
+    args = parser.parse_args()
 
+    data_dir = args.data_dir  # Path to dataset (LabPics 1)
+    data = []  # list of files in dataset
+    for ff, name in enumerate(os.listdir(data_dir + "Image/")):  # go over all folder annotation
+        data.append({"image": data_dir + "Image/" + name,
+                     "annotation": data_dir + "Instance/" + name[:-4] + ".png"})
 
-# Load model
+    # Load model
 
-sam2_checkpoint = "D:\sam2\segment-anything-2-main\checkpoints\sam2_hiera_tiny.pt"  # path to model weight (pre model loaded from: https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_small.pt)
-model_cfg = "sam2_hiera_t.yaml"  # model config
-sam2_model = build_sam2(model_cfg, sam2_checkpoint, device="cuda:0")  # load model
-predictor = SAM2ImagePredictor(sam2_model)
+    sam2_model = build_sam2(args.model_cfg, args.sam2_checkpoint, device="cuda:0")  # load model
+    predictor = SAM2ImagePredictor(sam2_model)
 
-# Set training parameters
+    # Set training parameters
 
-predictor.model.sam_mask_decoder.train(True)  # enable training of mask decoder
-predictor.model.sam_prompt_encoder.train(True)  # enable training of prompt encoder
-'''
-#The main part of the net is the image encoder, if you have good GPU you can enable training of this part by using:
-predictor.model.image_encoder.train(True)
-#Note that for this case, you will also need to scan the SAM2 code for “no_grad” commands and remove them (“ no_grad” blocks the gradient collection, which saves memory but prevents training).
-'''
-optimizer = torch.optim.AdamW(params=predictor.model.parameters(), lr=1e-5, weight_decay=4e-5)
-scaler = torch.cuda.amp.GradScaler()  # mixed precision
+    predictor.model.sam_mask_decoder.train(True)  # enable training of mask decoder
+    predictor.model.sam_prompt_encoder.train(True)  # enable training of prompt encoder
+    '''
+    #The main part of the net is the image encoder, if you have good GPU you can enable training of this part by using:
+    predictor.model.image_encoder.train(True)
+    #Note that for this case, you will also need to scan the SAM2 code for “no_grad” commands and remove them (“ no_grad” blocks the gradient collection, which saves memory but prevents training).
+    '''
+    optimizer = torch.optim.AdamW(params=predictor.model.parameters(), lr=1e-5, weight_decay=4e-5)
+    scaler = torch.cuda.amp.GradScaler()  # mixed precision
 
-# Training loop
+    # Training loop
 
-for itr in range(100000):
-    with torch.cuda.amp.autocast():  # cast to mix precision
-        image, mask, input_box, input_point, input_label = read_batch(data)  # load data batch
-        if mask.shape[0] == 0: continue  # ignore empty batches
-        predictor.set_image(image)  # apply SAM image encoder to the image
+    for itr in range(100000):
+        with torch.cuda.amp.autocast():  # cast to mix precision
+            image, mask, input_box, input_point, input_label = read_batch(data)  # load data batch
+            if mask.shape[0] == 0: continue  # ignore empty batches
+            predictor.set_image(image)  # apply SAM image encoder to the image
 
-        # prompt encoding
+            # prompt encoding
 
-        mask_input, unnorm_coords, labels, unnorm_box = predictor._prep_prompts(point_coords=input_point,
-                                                                                point_labels=input_label, box=input_box,
-                                                                                mask_logits=None, normalize_coords=True)
-        sparse_embeddings, dense_embeddings = predictor.model.sam_prompt_encoder(points=(unnorm_coords, labels),
-                                                                                 boxes=unnorm_box, masks=None, )
+            mask_input, unnorm_coords, labels, unnorm_box = predictor._prep_prompts(point_coords=input_point,
+                                                                                    point_labels=input_label,
+                                                                                    box=input_box,
+                                                                                    mask_logits=None,
+                                                                                    normalize_coords=True)
+            sparse_embeddings, dense_embeddings = predictor.model.sam_prompt_encoder(points=(unnorm_coords, labels),
+                                                                                     boxes=unnorm_box, masks=None, )
 
-        # mask decoder
-        batched_mode = unnorm_coords.shape[0] > 1  # multi object prediction
-        high_res_features = [feat_level[-1].unsqueeze(0) for feat_level in predictor._features["high_res_feats"]]
-        low_res_masks, prd_scores, _, _ = predictor.model.sam_mask_decoder(
-            image_embeddings=predictor._features["image_embed"][-1].unsqueeze(0),
-            image_pe=predictor.model.sam_prompt_encoder.get_dense_pe(), sparse_prompt_embeddings=sparse_embeddings,
-            dense_prompt_embeddings=dense_embeddings, multimask_output=True, repeat_image=batched_mode,
-            high_res_features=high_res_features, )
-        prd_masks = predictor._transforms.postprocess_masks(low_res_masks, predictor._orig_hw[
-            -1])  # Upscale the masks to the original image resolution
+            # mask decoder
+            batched_mode = unnorm_coords.shape[0] > 1  # multi object prediction
+            high_res_features = [feat_level[-1].unsqueeze(0) for feat_level in predictor._features["high_res_feats"]]
+            low_res_masks, prd_scores, _, _ = predictor.model.sam_mask_decoder(
+                image_embeddings=predictor._features["image_embed"][-1].unsqueeze(0),
+                image_pe=predictor.model.sam_prompt_encoder.get_dense_pe(), sparse_prompt_embeddings=sparse_embeddings,
+                dense_prompt_embeddings=dense_embeddings, multimask_output=True, repeat_image=batched_mode,
+                high_res_features=high_res_features, )
+            prd_masks = predictor._transforms.postprocess_masks(low_res_masks, predictor._orig_hw[
+                -1])  # Upscale the masks to the original image resolution
 
-        # Segmentaion Loss caclulation
+            # Segmentaion Loss caclulation
 
-        gt_mask = torch.tensor(mask.astype(np.float32)).cuda()
-        prd_mask = torch.sigmoid(prd_masks[:, 0])  # Turn logit map to probability map
-        seg_loss = (-gt_mask * torch.log(prd_mask + 0.00001) - (1 - gt_mask) * torch.log(
-            (1 - prd_mask) + 0.00001)).mean()  # cross entropy loss
+            gt_mask = torch.tensor(mask.astype(np.float32)).cuda()
+            prd_mask = torch.sigmoid(prd_masks[:, 0])  # Turn logit map to probability map
+            seg_loss = (-gt_mask * torch.log(prd_mask + 0.00001) - (1 - gt_mask) * torch.log(
+                (1 - prd_mask) + 0.00001)).mean()  # cross entropy loss
 
-        # Score loss calculation (intersection over union) IOU
+            # Score loss calculation (intersection over union) IOU
 
-        inter = (gt_mask * (prd_mask > 0.5)).sum(1).sum(1)
-        iou = inter / (gt_mask.sum(1).sum(1) + (prd_mask > 0.5).sum(1).sum(1) - inter)
-        score_loss = torch.abs(prd_scores[:, 0] - iou).mean()
-        loss = seg_loss + score_loss * 0.05  # mix losses
+            inter = (gt_mask * (prd_mask > 0.5)).sum(1).sum(1)
+            iou = inter / (gt_mask.sum(1).sum(1) + (prd_mask > 0.5).sum(1).sum(1) - inter)
+            score_loss = torch.abs(prd_scores[:, 0] - iou).mean()
+            loss = seg_loss + score_loss * 0.05  # mix losses
 
-        # apply back propogation
+            # apply back propogation
 
-        predictor.model.zero_grad()  # empty gradient
-        scaler.scale(loss).backward()  # Backpropogate
-        scaler.step(optimizer)
-        scaler.update()  # Mix precision
+            predictor.model.zero_grad()  # empty gradient
+            scaler.scale(loss).backward()  # Backpropogate
+            scaler.step(optimizer)
+            scaler.update()  # Mix precision
 
-        if itr % 100 == 0: torch.save(predictor.model.state_dict(),
-                                      "checkpoint_sam2/model.torch");print("save model")
+            if itr % 50 == 0: torch.save(predictor.model.state_dict(),
+                                         "tools/checkpoint_sam2/model_燕窝框.torch");print("save model")
 
-        # Display results
-        if itr == 0: mean_iou = 0
-        mean_iou = mean_iou * 0.99 + 0.01 * np.mean(iou.cpu().detach().numpy())
-        print("step)", itr, "Accuracy(IOU)=", mean_iou, "  loss=", loss)
+            # Display results
+            if itr == 0: mean_iou = 0
+            mean_iou = mean_iou * 0.99 + 0.01 * np.mean(iou.cpu().detach().numpy())
+            print("step)", itr, "Accuracy(IOU)=", mean_iou, "  loss=", loss)
+
+if __name__ == "__main__":
+    main()
