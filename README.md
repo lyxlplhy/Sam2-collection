@@ -25,9 +25,7 @@
 
    执行：
  ```
- ```python
  python .\tools\inference.py --sam2_cfg D:/sam2/segment-anything-2-main/sam2_configs/sam2_hiera_t.yaml --sam2_checkpoint D:/sam2/segment-anything-2-main/checkpoints/sam2_hiera_tiny.pt --yolo_checkpoint D:/sam2/ultralytics-main/ultralytics-main/runs/detect/train27/weights/best.pt --input_dir E:/LYX_date/yanwo_cover/1_yanwo_cover_data/ --output_dir E:/LYX_date/yanwo_cover/2024_11_27
-```
 ```
  
  会在[tools](./tools)文件夹下生成decoder、encoder的onnx文件。参考[ONNX-SAM2-Segment-Anything](https://github.com/ibaiGorordo/ONNX-SAM2-Segment-Anything)测试onnx格式模型导出是否成功。可使用c++推理部署[Sam2Onnx_Inference](https://github.com/lyxlplhy/Sam2Onnx_Inference)。
