@@ -13,23 +13,21 @@
 
 ## sam2微调
 数据：将图片和mask标签放在Image文件夹与Instance下，图片名称与标签名字保持一致
-![c81eb29e66eb6ed5ccd2960c2370a18](https://github.com/user-attachments/assets/28df89b9-2f0c-4e56-a88a-969bc5ef36b1)
-![9ee73c55f1a30747b8d413f03164117](https://github.com/user-attachments/assets/b5e782d3-71a2-4737-9121-f545222d0949)
+![28c3c499060af1415b05bda828f4f40](https://github.com/user-attachments/assets/2fc523f5-a20d-48cf-aae5-9da009cafc8c)
+![3b894b8009217f72e6383f89938455e](https://github.com/user-attachments/assets/ac9b088e-822c-4be7-907e-448afa483bb1)
+
  * 使用点作为提示信息微调[tools/train_point.py](./tools/train_point.py)
  * 使用点+框作为提示信息微调[tools/train_box.py](./tools/train_box.py)
-微调后会在[tools](./tools)文件夹下生成model.torch文件，使用微调权重方式参考[tools/inference.py](./tools/inference.py)中sam2_model函数。
 
+微调后会在[tools](./tools)文件夹下生成model.torch格式文件，加载微调权重方式参考[tools/inference.py](./tools/inference.py)中sam2_model函数。
 ## onnx导出
  * [export_sam2onnx.py](./tools/export_sam2onnx.py)
  
- 会在[tools](./tools)文件夹下生成decoder、encoder文件。参考[ONNX-SAM2-Segment-Anything](https://github.com/ibaiGorordo/ONNX-SAM2-Segment-Anything)测试onnx格式模型导出是否成功。可使用c++推理部署[Sam2Onnx_Inference](https://github.com/lyxlplhy/Sam2Onnx_Inference)。
-
+ 会在[tools](./tools)文件夹下生成decoder、encoder的onnx文件。参考[ONNX-SAM2-Segment-Anything](https://github.com/ibaiGorordo/ONNX-SAM2-Segment-Anything)测试onnx格式模型导出是否成功。可使用c++推理部署[Sam2Onnx_Inference](https://github.com/lyxlplhy/Sam2Onnx_Inference)。
 ## sam2+手动给提示框分割，可生成mask标签
  * [inference2.py](./tools/inference2.py)
-
 ## sam2+yolov8自动分割，可生成mask标签
  * [inference.py](./tools/inference.py)
-
 ## sam2视频推理
  * 代码中视频路径为视频抽帧后存放的文件夹，图片命名方式为0.jpg、1.jpg等 [inference_video.py](./tools/inference_video.py)
 ## 参考
