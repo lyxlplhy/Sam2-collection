@@ -55,10 +55,10 @@ def read_batch(data): # read random image and its annotaion from  the dataset (L
           mask=(mat_map == ind).astype(np.uint8) # make binary mask corresponding to index ind
           masks.append(mask)
           coords = np.argwhere(mask > 0) # get all coordinates in mask
-          #yx = np.array(coords[np.random.randint(len(coords))]) # choose random point/coordinate
-          center_y = int(np.mean(coords[:, 0]))  # y 坐标的平均值
-          center_x = int(np.mean(coords[:, 1]))  # x 坐标的平均值
-          yx = [center_y, center_x]
+          yx = np.array(coords[np.random.randint(len(coords))]) # choose random point/coordinate
+          # center_y = int(np.mean(coords[:, 0]))  # y 坐标的平均值
+          # center_x = int(np.mean(coords[:, 1]))  # x 坐标的平均值
+          # yx = [center_y, center_x]
 
           #mask_image = np.zeros_like(Img)  # 创建与原图像相同大小的空白图像
           #cv2.circle(mask_image, (yx[1], yx[0]), radius=5, color=(0, 0, 255), thickness=-1)  # 绘制红色圆点
