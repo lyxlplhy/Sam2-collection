@@ -20,7 +20,7 @@
  ### 微调：
  * 使用点作为提示信息微调,按照自己的数据集位置和模型位置修改[tools/train_point.py](./tools/train_point.py)中路径，执行
  * 使用点+框作为提示信息微调，按照自己的数据集位置和模型位置修改[tools/train_box.py](./tools/train_box.py)中路径，执行
- * 
+
  微调后会在[tools](./tools)文件夹下生成model.torch格式文件，加载微调权重方式参考[tools/inference.py](./tools/inference.py)中sam2_model函数。
 ## onnx导出
  * [export_sam2onnx.py](./tools/export_sam2onnx.py)文件，具体路径按实际替换，执行：
