@@ -12,18 +12,18 @@
  * ultralytics: pip install ultralytics
 
 ## sam2微调
- 数据：将图片和mask标签放在Image文件夹与Instance下，图片名称与标签名字保持一致
+ 1.数据：
+  将图片和mask标签放在Image文件夹与Instance下，图片名称与标签名字保持一致，如下
 ![28c3c499060af1415b05bda828f4f40](https://github.com/user-attachments/assets/2fc523f5-a20d-48cf-aae5-9da009cafc8c)
 ![3b894b8009217f72e6383f89938455e](https://github.com/user-attachments/assets/ac9b088e-822c-4be7-907e-448afa483bb1)
-
+ 2.微调：
  * 使用点作为提示信息微调,按照自己的数据集位置和模型位置修改[tools/train_point.py](./tools/train_point.py)中路径，执行
  * 使用点+框作为提示信息微调，按照自己的数据集位置和模型位置修改[tools/train_box.py](./tools/train_box.py)中路径，执行
 
  微调后会在[tools](./tools)文件夹下生成model.torch格式文件，加载微调权重方式参考[tools/inference.py](./tools/inference.py)中sam2_model函数。
 ## onnx导出
  * [export_sam2onnx.py](./tools/export_sam2onnx.py)文件
-
-   执行：
+   具体路径按实际替换，执行：
  ```
  python .\tools\inference.py --sam2_cfg D:/sam2/segment-anything-2-main/sam2_configs/sam2_hiera_t.yaml --sam2_checkpoint D:/sam2/segment-anything-2-main/checkpoints/sam2_hiera_tiny.pt --yolo_checkpoint D:/sam2/ultralytics-main/ultralytics-main/runs/detect/train27/weights/best.pt --input_dir E:/LYX_date/yanwo_cover/1_yanwo_cover_data/ --output_dir E:/LYX_date/yanwo_cover/2024_11_27
 ```
