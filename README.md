@@ -23,7 +23,6 @@
  python .\tools\train_point.py --data_dir E:\LYX_date\yanwo_cover\simple5\Train/ \
         --sam2_checkpoint D:\sam2\segment-anything-2-main\checkpoints\sam2_hiera_tiny.pt \
         --model_cfg sam2_hiera_t.yaml
-
 ```
  * 使用点+框作为提示信息微调，按照自己的数据集位置和模型位置修改[tools/train_box.py](./tools/train_box.py)中路径，执行
 ```
