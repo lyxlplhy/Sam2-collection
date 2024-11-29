@@ -6,6 +6,7 @@ import cv2
 import os
 from get_xy  import startRoi
 from ultralytics import YOLO
+import argparse
 
 
 def yolo_model(checkpoint,device):
@@ -14,24 +15,52 @@ def yolo_model(checkpoint,device):
     return yolo
 
 def sam2_model(config,checkpoint,device):
-    sam2 = build_sam2(config, checkpoint, device=device)
+    sam2 = build_sam2(config, checkpoint, device=torch.device(device))
     predictor = SAM2ImagePredictor(sam2)
     return predictor
 
-if __name__ == '__main__':
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--sam2_cfg",
+        type=str,
+        default="D:/sam2/segment-anything-2-main/sam2_configs/sam2_hiera_t.yaml",
+        help="SAM 2 model configuration file",
+    )
+    parser.add_argument(
+        "--sam2_checkpoint",
+        type=str,
+        default="D:\sam2\segment-anything-2-main\checkpoints\sam2_hiera_tiny.pt",
+        help="path to the SAM 2 model checkpoint",
+    )
+    parser.add_argument(
+        "--chatpoint_weitiao",
+        default=r"D:\sam2\segment-anything-2-main\tools\checkpoint_sam2/model_燕窝框.torch",
+        type=str,
+        help="微调的权重",
+    )
+    parser.add_argument(
+        "--sam_device",
+        default="cuda:0",
+        type=str,
+        help="sam2运行的device",
+    )
+    parser.add_argument(
+        "--input_dir",
+        default=r"E:/LYX_date/yanwo_cover/1_yanwo_cover_data/",
+        help="输入照片路径",
+    )
+    parser.add_argument(
+        "--output_dir",
+        default=r"E:\LYX_date\yanwo_cover\2024_11_27",
+        help="输出结果文件路径",
+    )
+    args = parser.parse_args()
     #sam2
-    checkpoint = r"D:\sam2\segment-anything-2-main\checkpoints\sam2_hiera_tiny.pt"  # 权重
-    model_cfg = "D:\sam2\segment-anything-2-main\sam2_configs\sam2_hiera_t.yaml"  # 配置文件
-    device = torch.device("cuda:0")
-    predictor = sam2_model(model_cfg, checkpoint, device)
+    predictor = sam2_model(args.sam2_cfg,args.sam2_checkpoint, args.sam_device)
 
-    # yolo
-    yolo_conver = yolo_model(r"D:\sam2\ultralytics-main\ultralytics-main\runs\detect\train4\weights\best.pt",torch.device("cpu"))
-    file_path = r"C:\Users\Admin\Documents\WeChat Files\wxid_sw6pddplsk6z22\FileStorage\File\2024-11\Data\Data"  # 读取的文件
-    file_save = r"C:\Users\Admin\Documents\WeChat Files\wxid_sw6pddplsk6z22\FileStorage\File\2024-11\Data\out"  # 保存地址
-
-    for file_name in os.listdir(file_path):
-        image = os.path.join(file_path, file_name)
+    for file_name in os.listdir(args.input_dir):
+        image = os.path.join(args.input_dir, file_name)
         print(image)
         img = cv2.imread(image)
         xyxy,point=startRoi(image)
@@ -48,7 +77,7 @@ if __name__ == '__main__':
         mask = masks[m].astype(np.uint8)
 
         mask_filename = os.path.splitext(file_name)[0] + "_mask.png"  # 生成mask文件名
-        mask_filepath = os.path.join(file_save, mask_filename)
+        mask_filepath = os.path.join(args.output_dir, mask_filename)
         cv2.imwrite(mask_filepath, mask)
 
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -58,3 +87,5 @@ if __name__ == '__main__':
         cv2.resizeWindow("img", 1280, 720)  # 设置长宽
         cv2.imshow("img", img)
         cv2.waitKey(0)
+if __name__ == "__main__":
+    main()

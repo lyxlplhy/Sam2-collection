@@ -15,9 +15,9 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from torch.nn.init import trunc_normal_
-
-
+import argparse
 from sam2.modeling.sam2_base import SAM2Base
+
 
 class SAM2ImageEncoder(nn.Module):
     def __init__(self, sam_model: SAM2Base) -> None:
@@ -137,14 +137,42 @@ class SAM2ImageDecoder(nn.Module):
         ) * self.prompt_encoder.no_mask_embed.weight.reshape(1, -1, 1, 1)
         return mask_embedding
 
-if __name__ == '__main__':
-    input_size = 1024  # Bad output if anything else (for now)
-    multimask_output = False
-    sam2_checkpoint = f"D:\sam2\segment-anything-2-main\checkpoints\sam2_hiera_tiny.pt"
-    model_cfg = 'D:\sam2\segment-anything-2-main\sam2_configs\sam2_hiera_t.yaml'
-    sam2_model = build_sam2(model_cfg, sam2_checkpoint, device="cpu")
-    sam2_model.load_state_dict(torch.load("E:\era5/model (1).torch"))
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--input_size",
+        type=int,
+        default=1024,
+        help="输入模型时候照片的大小",
+    )
+    parser.add_argument(
+        "--multimask_output",
+        type=bool,
+        default=False,
+        help="是否输出多个mask",
+    )
+    parser.add_argument(
+        "--sam2_checkpoint",
+        default=r"D:\sam2\segment-anything-2-main\checkpoints\sam2_hiera_tiny.pt",
+        type=str,
+        help="sam2权重",
+    )
+    parser.add_argument(
+        "--model_cfg",
+        default=r"D:\sam2\segment-anything-2-main\sam2_configs\sam2_hiera_t.yaml",
+        type=str,
+        help="sam2配置文件",
+    )
+    parser.add_argument(
+        "--weitiao_checkpoint",
+        default=r"D:\sam2\segment-anything-2-main\tools\checkpoint_sam2\model_燕窝框.torch",
+        help="sam2微调权重",
+    )
+    args = parser.parse_args()
 
+    input_size = args.input_size  # Bad output if anything else (for now)
+    sam2_model = build_sam2(args.model_cfg,args.sam2_checkpoint, device="cpu")
+    sam2_model.load_state_dict(torch.load(args.weitiao_checkpoint))
 
     img = torch.randn(1, 3, input_size, input_size).cpu()
 
@@ -156,7 +184,7 @@ if __name__ == '__main__':
 
     torch.onnx.export(sam2_encoder,
                       img,
-                      f"tiny_encoder.onnx",
+                      f"conver_tiny_encoder.onnx",
                       export_params=True,
                       opset_version=17,
                       do_constant_folding=True,
@@ -164,7 +192,7 @@ if __name__ == '__main__':
                       output_names=['high_res_feats_0', 'high_res_feats_1', 'image_embed']
                       )
 
-    sam2_decoder = SAM2ImageDecoder(sam2_model, multimask_output=multimask_output).cpu()
+    sam2_decoder = SAM2ImageDecoder(sam2_model, multimask_output=args.multimask_output).cpu()
     embed_dim = sam2_model.sam_prompt_encoder.embed_dim
     embed_size = (
     sam2_model.image_size // sam2_model.backbone_stride, sam2_model.image_size // sam2_model.backbone_stride)
@@ -183,7 +211,7 @@ if __name__ == '__main__':
     torch.onnx.export(sam2_decoder,
                       (image_embed, high_res_feats_0, high_res_feats_1, point_coords, point_labels, mask_input,
                        has_mask_input, orig_im_size),
-                      "tiny_decoder.onnx",
+                      "conver_tiny_decoder.onnx",
                       export_params=True,
                       opset_version=16,
                       do_constant_folding=True,
@@ -196,4 +224,6 @@ if __name__ == '__main__':
                                     "has_mask_input": {0: "num_labels"}
                                     }
                       )
+if __name__ == "__main__":
+    main()
 
