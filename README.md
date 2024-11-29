@@ -12,12 +12,12 @@
  * ultralytics: pip install ultralytics
 
 ## sam2微调
- 1.数据：
+ ### 数据：
   将图片和mask标签放在Image文件夹与Instance下，图片名称与标签名字保持一致，如下
 ![28c3c499060af1415b05bda828f4f40](https://github.com/user-attachments/assets/2fc523f5-a20d-48cf-aae5-9da009cafc8c)
 ![3b894b8009217f72e6383f89938455e](https://github.com/user-attachments/assets/ac9b088e-822c-4be7-907e-448afa483bb1)
 
- 2.微调：
+ ### 微调：
  * 使用点作为提示信息微调,按照自己的数据集位置和模型位置修改[tools/train_point.py](./tools/train_point.py)中路径，执行
  * 使用点+框作为提示信息微调，按照自己的数据集位置和模型位置修改[tools/train_box.py](./tools/train_box.py)中路径，执行
  * 
