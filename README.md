@@ -12,11 +12,12 @@
  * ultralytics: pip install ultralytics
 
 ## sam2微调
-### 准备
- 
- 微调后会在[tools](./tools)文件夹下生成model.torch文件，使用微调权重方式参考[tools/inference.py](./tools/inference.py)中sam2_model函数。
- * 点作为提示信息微调[tools/train_point.py](./tools/train_point.py)
- * 点+框作为提示信息微调[tools/train_box.py](./tools/train_box.py)
+数据：将图片和mask标签放在Image文件夹与Instance下，图片名称与标签名字保持一致
+![c81eb29e66eb6ed5ccd2960c2370a18](https://github.com/user-attachments/assets/28df89b9-2f0c-4e56-a88a-969bc5ef36b1)
+![9ee73c55f1a30747b8d413f03164117](https://github.com/user-attachments/assets/b5e782d3-71a2-4737-9121-f545222d0949)
+ * 使用点作为提示信息微调[tools/train_point.py](./tools/train_point.py)
+ * 使用点+框作为提示信息微调[tools/train_box.py](./tools/train_box.py)
+微调后会在[tools](./tools)文件夹下生成model.torch文件，使用微调权重方式参考[tools/inference.py](./tools/inference.py)中sam2_model函数。
 
 ## onnx导出
  * [export_sam2onnx.py](./tools/export_sam2onnx.py)
