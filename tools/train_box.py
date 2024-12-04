@@ -79,7 +79,7 @@ def main():
         "--data_dir",
         type=str,
         default="E:\LYX_date\yanwo_cover\simple5\Train/",
-        help="存放模型的路径",
+        help="存放数据的路径",
     )
     parser.add_argument(
         "--sam2_checkpoint",
