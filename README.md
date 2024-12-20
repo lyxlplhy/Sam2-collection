@@ -31,7 +31,7 @@
 ## onnx导出
  * [export_sam2onnx.py](./tools/export_sam2onnx.py)文件，具体路径按实际替换，执行：
 ```
- python .\tools\export_sam2onnx.py --sam2_checkpoint D:\sam2\segment-anything-2-main\checkpoints\sam2_hiera_tiny.pt --model_cfg D:\sam2\segment-anything-2-main\sam2_configs\sam2_hiera_t.yaml 
+ python .\tools\export_sam2onnx.py --sam2_checkpoint D:\sam2\segment-anything-2-main\checkpoints\sam2_hiera_tiny.pt --model_cfg D:\sam2\segment-anything-2-main\sam2_configs\sam2_hiera_t.yaml --f16 True
 ```
 
  在[tools](./tools)文件夹下生成decoder、encoder的onnx文件。可参考[ONNX-SAM2-Segment-Anything](https://github.com/ibaiGorordo/ONNX-SAM2-Segment-Anything)测试onnx格式模型导出是否成功。可使用c++推理部署[Sam2Onnx_Inference](https://github.com/lyxlplhy/Sam2Onnx_Inference)。
