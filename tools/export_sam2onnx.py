@@ -1,7 +1,5 @@
-import torch
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
-
 
 def sam2_model(config,checkpoint,device,checkpoint_weitiao):
     sam2 = build_sam2(config, checkpoint, device=device)
@@ -14,11 +12,10 @@ from typing import Optional, Tuple, Any
 import torch
 from torch import nn
 import torch.nn.functional as F
-from torch.nn.init import trunc_normal_
 import argparse
 from sam2.modeling.sam2_base import SAM2Base
-
-
+import onnx
+from onnxconverter_common import float16
 class SAM2ImageEncoder(nn.Module):
     def __init__(self, sam_model: SAM2Base) -> None:
         super().__init__()
@@ -139,37 +136,13 @@ class SAM2ImageDecoder(nn.Module):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--input_size",
-        type=int,
-        default=1024,
-        help="输入模型时候照片的大小",
-    )
-    parser.add_argument(
-        "--multimask_output",
-        type=bool,
-        default=False,
-        help="是否输出多个mask",
-    )
-    parser.add_argument(
-        "--sam2_checkpoint",
-        default=r"D:\sam2\segment-anything-2-main\checkpoints\sam2_hiera_tiny.pt",
-        type=str,
-        help="sam2权重",
-    )
-    parser.add_argument(
-        "--model_cfg",
-        default=r"D:\sam2\segment-anything-2-main\sam2_configs\sam2_hiera_t.yaml",
-        type=str,
-        help="sam2配置文件",
-    )
-    parser.add_argument(
-        "--weitiao_checkpoint",
-        default=r"D:\sam2\segment-anything-2-main\tools\checkpoint_sam2\model_燕窝框.torch",
-        help="sam2微调权重",
-    )
+    parser.add_argument("--input_size",type=int,default=1024,help="输入模型时候照片的大小",)
+    parser.add_argument("--multimask_output",type=bool,default=True,help="是否输出多个mask",)
+    parser.add_argument("--sam2_checkpoint",default=r"D:\sam2\segment-anything-2-main\checkpoints\sam2_hiera_tiny.pt",type=str,help="sam2权重",)
+    parser.add_argument("--model_cfg",default=r"D:\sam2\segment-anything-2-main\sam2_configs\sam2_hiera_t.yaml",type=str,help="sam2配置文件",)
+    parser.add_argument("--weitiao_checkpoint",default="E:\era5\model_透明小盖子框.torch",help="sam2微调权重",)
+    parser.add_argument("--f16", default=True, help="是否使用f16精度", )
     args = parser.parse_args()
-
     input_size = args.input_size  # Bad output if anything else (for now)
     sam2_model = build_sam2(args.model_cfg,args.sam2_checkpoint, device="cpu")
     sam2_model.load_state_dict(torch.load(args.weitiao_checkpoint))
@@ -184,14 +157,13 @@ def main():
 
     torch.onnx.export(sam2_encoder,
                       img,
-                      f"conver_tiny_encoder.onnx",
+                      f"onnx/conver_tiny_encoder.onnx",
                       export_params=True,
                       opset_version=17,
                       do_constant_folding=True,
                       input_names=['image'],
                       output_names=['high_res_feats_0', 'high_res_feats_1', 'image_embed']
                       )
-
     sam2_decoder = SAM2ImageDecoder(sam2_model, multimask_output=args.multimask_output).cpu()
     embed_dim = sam2_model.sam_prompt_encoder.embed_dim
     embed_size = (
@@ -211,7 +183,7 @@ def main():
     torch.onnx.export(sam2_decoder,
                       (image_embed, high_res_feats_0, high_res_feats_1, point_coords, point_labels, mask_input,
                        has_mask_input, orig_im_size),
-                      "conver_tiny_decoder.onnx",
+                      "onnx/conver_tiny_decoder.onnx",
                       export_params=True,
                       opset_version=16,
                       do_constant_folding=True,
@@ -224,6 +196,15 @@ def main():
                                     "has_mask_input": {0: "num_labels"}
                                     }
                       )
+    if args.f16:
+        encoder_model_fp32 = onnx.load("onnx/conver_tiny_encoder.onnx")
+        decoder_model_fp32 = onnx.load("onnx/conver_tiny_decoder.onnx")
+
+        encoder_model_fp16 = float16.convert_float_to_float16(encoder_model_fp32, keep_io_types=True)
+        decoder_model_fp16 = float16.convert_float_to_float16(decoder_model_fp32, keep_io_types=True)
+
+        onnx.save(encoder_model_fp16, "D:\sam2\segment-anything-2-main/tools\onnx_float16/conver_tiny_encoder_f16.onnx")
+        onnx.save(decoder_model_fp16, "D:\sam2\segment-anything-2-main/tools\onnx_float16/conver_tiny_decoder_f16.onnx")
 if __name__ == "__main__":
     main()
 
