@@ -43,6 +43,9 @@
  ```
  python .\tools\inference.py --sam2_cfg D:/sam2/segment-anything-2-main/sam2_configs/sam2_hiera_t.yaml --sam2_checkpoint D:/sam2/segment-anything-2-main/checkpoints/sam2_hiera_tiny.pt --yolo_checkpoint D:/sam2/ultralytics-main/ultralytics-main/runs/detect/train27/weights/best.pt --input_dir E:/LYX_date/yanwo_cover/1_yanwo_cover_data/ --output_dir E:/LYX_date/yanwo_cover/2024_11_27
 ```
+## tensorrt模型转换与推理
+（等待更新）
+
 ## sam2视频推理
  * 代码中视频路径为视频抽帧后存放的文件夹，图片命名方式为0.jpg、1.jpg等 [inference_video.py](./tools/inference_video.py)
 ## 参考
