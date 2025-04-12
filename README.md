@@ -1,4 +1,4 @@
-# sam2合集，用于sam2微调，onnx导出，单帧推理，视频推理
+# sam2合集，用于sam2微调，onnx导出，单帧推理，视频推理(Tensorrt待补充)
 ## 功能
   * sam2用于点和框作为提示信息的微调
   * onnx导出(F32 F16)
@@ -10,6 +10,7 @@
  * sam2: pip install -e .
  * onnx: pip install onnx
  * ultralytics: pip install ultralytics
+ * tensorrt=8.6.1.6
 
 ## sam2微调
  ### 数据：
