@@ -1,4 +1,4 @@
-# sam2合集，用于sam2微调，onnx导出，单帧推理，视频推理(Tensorrt待补充)
+# sam2合集，用于sam2微调，onnx导出，单帧推理，视频推理，Tensorrt
 ## 功能
   * sam2用于点和框作为提示信息的微调
   * onnx导出(F32 F16)
@@ -44,10 +44,12 @@
  python .\tools\inference.py --sam2_cfg D:/sam2/segment-anything-2-main/sam2_configs/sam2_hiera_t.yaml --sam2_checkpoint D:/sam2/segment-anything-2-main/checkpoints/sam2_hiera_tiny.pt --yolo_checkpoint D:/sam2/ultralytics-main/ultralytics-main/runs/detect/train27/weights/best.pt --input_dir E:/LYX_date/yanwo_cover/1_yanwo_cover_data/ --output_dir E:/LYX_date/yanwo_cover/2024_11_27
 ```
 ## tensorrt模型转换与推理
-（等待更新）
+[tensorrt](https://github.com/lyxlplhy/Sam2-collection/tree/master/tools/run_tensorrt)
 
 ## sam2视频推理
  * 代码中视频路径为视频抽帧后存放的文件夹，图片命名方式为0.jpg、1.jpg等 [inference_video.py](./tools/inference_video.py)
+
+
 ## 参考
 * sam2: [https://github.com/facebookresearch/sam2](https://github.com/facebookresearch/sam2)
 * 60行代码就可以训练/微调 Segment Anything 2 (SAM 2): [https://avoid.overfit.cn/post/9598b9b4ccc64a8e86275f1e7712e0dd](https://avoid.overfit.cn/post/9598b9b4ccc64a8e86275f1e7712e0dd)
